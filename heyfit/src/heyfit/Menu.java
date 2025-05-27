@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 public class Menu {
     private Scanner leia = new Scanner(System.in);
+    private BancoDados bancoDados = new BancoDados();
 
     // Exibe o menu inicial do sistema
     public void ExibirMenuInicial() {
@@ -51,6 +52,7 @@ public class Menu {
         String tipoStr = leia.nextLine();
 
         try {
+        	BancoDados.CriarTabelas();
             Usuario.tipo tipo = Usuario.tipo.valueOf(tipoStr);
             PreparedStatement stmt = BancoDados.getConexao()
                 .prepareStatement("INSERT INTO usuarios (nome, email, senha, tipoUsuario) VALUES (?, ?, ?, ?)");
