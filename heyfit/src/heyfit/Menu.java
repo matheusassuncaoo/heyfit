@@ -194,15 +194,18 @@ public class Menu {
                 switch (opcao) {
                     case 1:
                     	ExibirMenuCadastrarPersonal();
+                    	break;
                     case 2:
                     	ExibirMenuCadastrarRecepcao();
+                    	break;
                     case 3:
-                        ExibirMenuCadastrarAdmin();
+                        ExibirMenuCadastrarAdmin();   
                         break;
                     case 4:
                         return false;
-                    default:
+				default:
                         System.out.println("Opção inválida!");
+                        break;
                 }
                 break;
             default:
