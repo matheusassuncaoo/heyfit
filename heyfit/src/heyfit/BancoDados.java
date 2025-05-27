@@ -13,6 +13,7 @@ public class BancoDados {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 conexao = DriverManager.getConnection(url, user, password);
+                CriarTabelas();
                 System.out.println("Conexão realizada com sucesso!");
             } catch (ClassNotFoundException e) {
                 System.out.println("Driver do SQL não encontrado: " + e.getMessage());
@@ -22,6 +23,8 @@ public class BancoDados {
                 e.printStackTrace();
             }
         }
+       
+        
         return conexao;
     }
 
@@ -34,6 +37,23 @@ public class BancoDados {
                 System.out.println("Erro ao fechar a conexão: " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+    }
+    
+    public static void CriarTabelas() {
+        String sql = "CREATE TABLE IF NOT EXISTS usuarios (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY," +
+                "nome VARCHAR(100) NOT NULL," +
+                "email VARCHAR(100) NOT NULL UNIQUE," +
+                "senha VARCHAR(100) NOT NULL," +
+                "tipoUsuario ENUM('Aluno', 'Personal', 'Recepcionista', 'Administrador') NOT NULL" +
+                ");";
+        try (Statement stmt = conexao.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabela 'usuario' verificada/criada com sucesso.");
+        } catch (SQLException e) {
+            System.out.println("Erro ao criar tabela 'usuario': " + e.getMessage());
+            e.printStackTrace();
         }
     }
 	
