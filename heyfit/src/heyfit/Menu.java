@@ -868,17 +868,36 @@ public class Menu {
         try {
             // PASSO 1: Buscar dados do usuário para confirmação
             PreparedStatement stmtVerifica = BancoDados.getConexao()
-                .prepareStatement("SELECT nome, estaAtivo FROM usuarios WHERE id = ?");
+                .prepareStatement("SELECT nome, estaAtivo, tipoUsuario FROM usuarios WHERE id = ?");
             stmtVerifica.setInt(1, idUsuario);
             ResultSet rs = stmtVerifica.executeQuery();
 
             if (rs.next()) {
                 String nome = rs.getString("nome");
                 boolean estaAtivo = rs.getBoolean("estaAtivo");
+                String tipoUsuario = rs.getString("tipoUsuario");
                 String acao = estaAtivo ? "desativar" : "ativar"; // define ação baseada no status atual
                 
+                // NOVA VALIDAÇÃO: Se está tentando desativar um administrador
+                if (estaAtivo && "Administrador".equals(tipoUsuario)) {
+                    // Conta quantos administradores ativos existem
+                    int totalAdminsAtivos = BancoDados.contarAdministradoresAtivos();
+                    
+                    if (totalAdminsAtivos <= 1) {
+                        System.out.println("❌ ERRO CRÍTICO: Não é possível desativar este administrador!");
+                        System.out.println("📋 MOTIVO: Este é o último administrador ativo do sistema.");
+                        System.out.println("💡 SOLUÇÃO: Crie outro administrador antes de desativar este.");
+                        System.out.println();
+                        return; // SAI DO MÉTODO
+                    } else {
+                        // Aviso especial para desativação de admin quando há outros
+                        System.out.println("⚠️  ATENÇÃO: Você está prestes a desativar um ADMINISTRADOR!");
+                        System.out.println("📊 Administradores ativos restantes: " + (totalAdminsAtivos - 1));
+                    }
+                }
+                
                 // PASSO 2: Mostrar dados e pedir confirmação
-                System.out.println("Usuário: " + nome + " (Status atual: " + (estaAtivo ? "ATIVO" : "INATIVO") + ")");
+                System.out.println("Usuário: " + nome + " (Tipo: " + tipoUsuario + " | Status atual: " + (estaAtivo ? "ATIVO" : "INATIVO") + ")");
                 System.out.print("Confirma " + acao + " este usuário? (s/n): ");
                 String confirmacao = leia.nextLine();
                 
@@ -890,12 +909,12 @@ public class Menu {
                     stmtUpdate.setInt(2, idUsuario);
                     stmtUpdate.executeUpdate();
                     
-                    System.out.println("Usuário " + (estaAtivo ? "desativado" : "ativado") + " com sucesso!\n");
+                    System.out.println("✅ Usuário " + (estaAtivo ? "desativado" : "ativado") + " com sucesso!\n");
                 } else {
-                    System.out.println("Operação cancelada.\n");
+                    System.out.println("❌ Operação cancelada.\n");
                 }
             } else {
-                System.out.println("Usuário não encontrado!\n");
+                System.out.println("❌ Usuário não encontrado!\n");
             }
         } catch (SQLException e) {
             System.out.println("Erro ao alterar status do usuário: " + e.getMessage());
