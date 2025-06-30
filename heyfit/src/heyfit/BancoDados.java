@@ -229,4 +229,25 @@ public class BancoDados {
             return false;
         }
     }
+    
+    /**
+     * MÉTODO ESPECÍFICO: Conta quantos administradores ativos existem no sistema
+     * Usado para validar se um admin pode se auto desativar
+     * @return número de administradores ativos
+     */
+    public static int contarAdministradoresAtivos() {
+        try {
+            PreparedStatement stmt = getConexao()
+                .prepareStatement("SELECT COUNT(*) as total FROM usuarios WHERE tipoUsuario = 'Administrador' AND estaAtivo = TRUE");
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+            return 0;
+        } catch (SQLException e) {
+            System.out.println("Erro ao contar administradores ativos: " + e.getMessage());
+            return 0;
+        }
+    }
 }
